@@ -527,7 +527,7 @@ Blocks for a different implemented target are validated but not emitted;
 unknown targets or boundaries are errors even in unselected blocks.
 
 Inserted Cwhip bodies must use current
-[Cwhip syntax](https://github.com/chucktilbury/cwhip/blob/master/doc/GRAMMAR.md),
+[Cwhip syntax](https://github.com/cwhip-lang/cwhip/blob/master/doc/GRAMMAR.md),
 including `return(value)`, callable types such as `int64<int64>`, and dictionary
 literals such as `["key": value]` or `[:]`. The generator preserves bodies
 verbatim; it does not translate legacy syntax. A `.cpg` directive or parser-rule
