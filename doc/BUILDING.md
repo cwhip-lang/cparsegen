@@ -8,7 +8,7 @@ SDK into a user-owned prefix; Cwhip records that prefix in its
 `sdk.toml`, which this project discovers automatically:
 
 ```sh
-git clone --depth 1 https://github.com/chucktilbury/cwhip.git "$HOME/Src/cwhip"
+git clone --depth 1 https://github.com/cwhip-lang/cwhip.git "$HOME/Src/cwhip"
 cmake -S "$HOME/Src/cwhip" -B "$HOME/Src/cwhip-build" \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCWHIP_STAGE_PREFIX="$HOME/Src/cwhip-build/stage" \
@@ -20,7 +20,7 @@ cmake --install "$HOME/Src/cwhip-build"
 ```
 
 Install the host prerequisites listed in the [Cwhip SDK installation
-guide](https://github.com/chucktilbury/cwhip/blob/master/doc/GETTING_STARTED.md#host-prerequisites)
+guide](https://github.com/cwhip-lang/cwhip/blob/master/doc/GETTING_STARTED.md#host-prerequisites)
 first. This project requires the exact Cwhip SDK version `0.0.2`, the
 `numeric-v2` SDK ABI, and an installation that supports configurable
 application output directories and the `cwhip_apply_application_defaults()`

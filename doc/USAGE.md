@@ -15,7 +15,7 @@ It distinguishes generated infrastructure from the handwritten demonstrations.
 
 Install the Cwhip SDK and its host prerequisites; cparsegen does not vendor,
 download, or build the SDK during CMake configuration. Follow the
-[Cwhip SDK installation guide](https://github.com/chucktilbury/cwhip/blob/master/doc/GETTING_STARTED.md#build-and-install-the-sdk)
+[Cwhip SDK installation guide](https://github.com/cwhip-lang/cwhip/blob/master/doc/GETTING_STARTED.md#build-and-install-the-sdk)
 to install a compiler-only SDK. Then configure the project and start its shell:
 
 ```sh

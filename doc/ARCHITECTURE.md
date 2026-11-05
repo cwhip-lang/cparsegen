@@ -201,8 +201,8 @@ input/output boundary so the grammar model and generated parser semantics
 remain Cwhip-level and target-neutral.
 
 The SDK version and file/collection APIs are documented in the public
-[Cwhip SDK contract](https://github.com/chucktilbury/cwhip/blob/master/doc/CMAKE-SDK.md)
-and [standard library reference](https://github.com/chucktilbury/cwhip/blob/master/doc/STDLIB.md).
+[Cwhip SDK contract](https://github.com/cwhip-lang/cwhip/blob/master/doc/CMAKE-SDK.md)
+and [standard library reference](https://github.com/cwhip-lang/cwhip/blob/master/doc/STDLIB.md).
 
 ## Executable prototype boundary
 
