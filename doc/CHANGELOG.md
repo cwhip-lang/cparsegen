@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add `.gitattributes` so GitHub does not label `.cw` files as RedCode.
 - Parse argv through the SDK `cli` 0.1.0 package while preserving usage text,
   exit codes, duplicate-option rejection, and include-path empty-component rules.
 - Read grammar bytes with `text[index]` and copy half-open spans through an
