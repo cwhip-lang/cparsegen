@@ -1,6 +1,7 @@
 include "parser.cw"
 
 class SmallCLocation {
+    public:
     AstNode node
     int64 offset
 
@@ -11,6 +12,7 @@ class SmallCLocation {
 }
 
 class SmallCTokenCursor {
+    public:
     int64 index
 
     SmallCTokenCursor() {
@@ -19,6 +21,7 @@ class SmallCTokenCursor {
 }
 
 class SmallCScope {
+    public:
     list symbols
     SmallCScope parent
 
@@ -29,6 +32,7 @@ class SmallCScope {
 }
 
 class SmallCSymbol {
+    public:
     String name
     String kind
     String valueType
@@ -52,6 +56,7 @@ class SmallCSymbol {
 // "void" results may only be used as expression statements, "char[]" accepts
 // the bare name of a char array or a string literal, and "byte" accepts char or int.
 class SmallCIntrinsic {
+    public:
     String name
     String resultType
     list parameterTypes
@@ -67,6 +72,7 @@ class SmallCIntrinsic {
 }
 
 class SmallCIntrinsics {
+    public:
     list entries
 
     SmallCIntrinsics() {
@@ -90,6 +96,7 @@ class SmallCIntrinsics {
 }
 
 class SmallCSemanticChecker : GeneratedVisitor {
+    public:
     SmallCIntrinsics intrinsics
     list locations
     list globals
@@ -952,6 +959,7 @@ definition = true }
 }
 
 class SmallCFrontend {
+    public:
     Sys.StandardIO io
     list tokens
     String problem

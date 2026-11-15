@@ -35,6 +35,7 @@ int inserted_word_count(const unsigned char *input, size_t length) {
 
 @insert cwhip visitor_post {
 class InsertedWordCounter : GeneratedVisitor {
+    public:
     int64 count
     InsertedWordCounter() { super GeneratedVisitor()
 count = 0 }
@@ -42,6 +43,7 @@ count = 0 }
 return(VISIT_CONTINUE) }
 }
 class InsertedWords {
+    public:
     int64 count(String input) {
         InputScanner scanner(input)
         if (!scanner.scan()) { return(-1) }

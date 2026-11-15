@@ -1,6 +1,7 @@
 include "parser.cw"
 
 class Trace : GeneratedVisitor {
+    public:
     String events
     String mode
     int64 count

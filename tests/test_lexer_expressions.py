@@ -304,7 +304,7 @@ class LexerExpressionValidationTests(GeneratorTestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         driver = self.directory / "driver.cw"
         driver.write_text(
-            'include "generated.cw"\nclass Driver {\nint64 run() {\n'
+            'include "generated.cw"\nclass Driver {\n    public:\nint64 run() {\n'
             f'InputScanner scanner({self.cw_string(source)})\n'
             'if (!scanner.scan()) { print(scanner.problem)\nreturn(1) }\n'
             'int64 i = 0\nwhile (i < scanner.tokens.length) {\n'

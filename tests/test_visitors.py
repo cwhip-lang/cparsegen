@@ -168,6 +168,7 @@ int main(void) {
             "cwhip": '''
 include "parser.cw"
 class Seen : GeneratedVisitor {
+    public:
     int64 rules
     String digits
     Seen() { super GeneratedVisitor()
@@ -310,6 +311,7 @@ int main(void) {
             "cwhip": '''
 include "parser.cw"
 class Retained {
+    public:
     AstNode tree() {
         InputScanner scanner(" ab,\\r\\nc")
         if (!scanner.scan() || scanner.tokens.length != 3) { Sys.Process().exit(10) }
@@ -356,6 +358,7 @@ start {
         executable = self.consumer("cwhip", FIXTURES / "grammar.cpg", '''
 include "parser.cw"
 class Legacy : GeneratedVisitor {
+    public:
     String events
     Legacy() { super GeneratedVisitor()
 events = "" }

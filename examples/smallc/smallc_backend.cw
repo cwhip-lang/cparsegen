@@ -4,6 +4,7 @@
 // stack metadata and the container layout.
 
 class SmallCAsmCode {
+    public:
     String text
     int64 labelCounter
 
@@ -35,6 +36,7 @@ class SmallCAsmCode {
 }
 
 class SmallCAsmVariable {
+    public:
     String name
     String valueType
     bool global
@@ -54,6 +56,7 @@ class SmallCAsmVariable {
 }
 
 class SmallCAsmScope {
+    public:
     list variables
     SmallCAsmScope parent
 
@@ -64,6 +67,7 @@ class SmallCAsmScope {
 }
 
 class SmallCAsmFunction {
+    public:
     String name
     String asmName
     String returnType
@@ -92,6 +96,7 @@ class SmallCAsmFunction {
 }
 
 class SmallCAsmArray {
+    public:
     String asmName
     String elementType
     int64 length
@@ -108,6 +113,7 @@ class SmallCAsmArray {
 }
 
 class SmallCAsmLoop {
+    public:
     String breakLabel
     String continueLabel
     SmallCAsmLoop parent
@@ -121,6 +127,7 @@ class SmallCAsmLoop {
 }
 
 class SmallCAssemblyCompiler {
+    public:
     SmallCAsmFunction entryFunction
     list functions
     list globals

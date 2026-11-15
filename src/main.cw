@@ -7,12 +7,14 @@ include "emitter.cw"
 include "c_emitter.cw"
 
 class FileIdentity {
+    public:
     int64 sameFile(String first, String second)
 }
 
 int64 FileIdentity.sameFile(String first, String second) from "cparsegen_same_file"
 
 class GeneratorCli {
+    public:
     Sys.StandardIO io
     Sys.Process process
 

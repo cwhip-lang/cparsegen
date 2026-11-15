@@ -1,4 +1,5 @@
 class GrammarEmitter {
+    public:
     GrammarModel grammar
     Analysis analysis
     list literals
@@ -79,19 +80,19 @@ class GrammarEmitter {
         output.append("import system as Sys\n\n")
         emitInsertions(output, "cwhip", "imports")
         emitInsertions(output, "cwhip", "declarations")
-        output.append("class LexToken {\n    String kind\n    String text\n    int64 offset\n    LexToken(String k, String t, int64 at) { kind = k\ntext = t\noffset = at }\n}\n\n")
+        output.append("class LexToken {\n    public:\n    String kind\n    String text\n    int64 offset\n    LexToken(String k, String t, int64 at) { kind = k\ntext = t\noffset = at }\n}\n\n")
         emitInsertions(output, "cwhip", "ast_pre")
-        output.append("class AstNode {\n    String name\n    String text\n    list children\n")
+        output.append("class AstNode {\n    public:\n    String name\n    String text\n    list children\n")
         output.append("    AstNode(String n, String t) { name = n\ntext = t\nchildren = [] }\n")
         output.append("    String kind() { return(name) }\n    String lexeme() { return(text) }\n    int64 childCount() { return(children.length) }\n    AstNode childAt(int64 index) { return(children[index] as AstNode) }\n")
         output.append("    String render() {\n        String result = \"\"\n        result.append(name)\n        result.append(\"(\")\n        if (children.length == 0) { result.append(text) }\n        int64 i = 0\n        while (i < children.length) {\n            if (i > 0) { result.append(\", \") }\n            result.append((children[i] as AstNode).render())\n            i += 1\n        }\n        result.append(\")\")\n        return(result)\n    }\n}\n\n")
         emitInsertions(output, "cwhip", "ast_post")
         emitInsertions(output, "cwhip", "scanner_pre")
-        output.append("class ScanRange {\n    int64 first\n    int64 last\n    ScanRange(int64 a, int64 b) { first = a\nlast = b }\n}\n\n")
-        output.append("class ScanState {\n    int64 kind\n    list ranges\n    int64 next\n    int64 alternate\n    ScanState(int64 k, list r, int64 n, int64 a) { kind = k\nranges = r\nnext = n\nalternate = a }\n")
+        output.append("class ScanRange {\n    public:\n    int64 first\n    int64 last\n    ScanRange(int64 a, int64 b) { first = a\nlast = b }\n}\n\n")
+        output.append("class ScanState {\n    public:\n    int64 kind\n    list ranges\n    int64 next\n    int64 alternate\n    ScanState(int64 k, list r, int64 n, int64 a) { kind = k\nranges = r\nnext = n\nalternate = a }\n")
         output.append("    bool accepts(int64 byte) {\n        int64 i = 0\n        while (i < ranges.length) {\n            ScanRange interval = ranges[i] as ScanRange\n            if (byte >= interval.first && byte <= interval.last) { return(true) }\n            i += 1\n        }\n        return(false)\n    }\n}\n\n")
-        output.append("class ScanRule {\n    String name\n    int64 entry\n    bool skip\n    int64 quote\n    ScanRule(String n, int64 e, bool s, int64 q) { name = n\nentry = e\nskip = s\nquote = q }\n}\n\n")
-        output.append("class InputScanner {\nint64 byteSpanBound(int64 value, int64 length) {\n    int64 index = value\n    if (index < 0) { index = index + length }\n    if (index < 0) { return(0) }\n    if (index > length) { return(length) }\n    return(index)\n}\nString byteSpan(String text, int64 first, int64 last) {\n    int64 lower = byteSpanBound(first, text.length)\n    int64 end = byteSpanBound(last, text.length)\n    if (end <= lower) { return(\"\") }\n    return(text[lower..(end - 1)])\n}\n    String input\n    list tokens\n    list rules\n    list states\n    list lineComments\n    list blockComments\n    int64 errorOffset\n    String problem\n    int64 steps\n")
+        output.append("class ScanRule {\n    public:\n    String name\n    int64 entry\n    bool skip\n    int64 quote\n    ScanRule(String n, int64 e, bool s, int64 q) { name = n\nentry = e\nskip = s\nquote = q }\n}\n\n")
+        output.append("class InputScanner {\n    public:\nint64 byteSpanBound(int64 value, int64 length) {\n    int64 index = value\n    if (index < 0) { index = index + length }\n    if (index < 0) { return(0) }\n    if (index > length) { return(length) }\n    return(index)\n}\nString byteSpan(String text, int64 first, int64 last) {\n    int64 lower = byteSpanBound(first, text.length)\n    int64 end = byteSpanBound(last, text.length)\n    if (end <= lower) { return(\"\") }\n    return(text[lower..(end - 1)])\n}\n    String input\n    list tokens\n    list rules\n    list states\n    list lineComments\n    list blockComments\n    int64 errorOffset\n    String problem\n    int64 steps\n")
         output.append("    InputScanner(String text) {\n        input = text\n        tokens = []\n        rules = []\n        states = []\n        lineComments = []\n        blockComments = []\n        errorOffset = -1\n        problem = \"\"\n        steps = 0\n")
         int64 comment = 0
         while (comment < analysis.lexical.lineComments.length) {
@@ -158,10 +159,10 @@ class GrammarEmitter {
     }
 
     void emitParser(String output) {
-        output.append("class ParserExpr {\n    int64 kind\n    String value\n    list children\n    int64 minimum\n    int64 maximum\n    int64 required\n    ParserExpr(int64 k, String v, list c, int64 a, int64 b, int64 r) { kind = k\nvalue = v\nchildren = c\nminimum = a\nmaximum = b\nrequired = r }\n}\n\n")
-        output.append("class ParserRuleDef {\n    String name\n    ParserExpr expression\n    ParserRuleDef(String n, ParserExpr e) { name = n\nexpression = e }\n}\n\n")
-        output.append("class ParseResult {\n    int64 end\n    list nodes\n    ParseResult(int64 at, list children) { end = at\nnodes = children }\n}\n\n")
-        output.append("class GeneratedParser {\n    list tokens\n    list rules\n    int64 position\n    int64 errorPosition\n    int64 steps\n    int64 endLimit\n    String problem\n")
+        output.append("class ParserExpr {\n    public:\n    int64 kind\n    String value\n    list children\n    int64 minimum\n    int64 maximum\n    int64 required\n    ParserExpr(int64 k, String v, list c, int64 a, int64 b, int64 r) { kind = k\nvalue = v\nchildren = c\nminimum = a\nmaximum = b\nrequired = r }\n}\n\n")
+        output.append("class ParserRuleDef {\n    public:\n    String name\n    ParserExpr expression\n    ParserRuleDef(String n, ParserExpr e) { name = n\nexpression = e }\n}\n\n")
+        output.append("class ParseResult {\n    public:\n    int64 end\n    list nodes\n    ParseResult(int64 at, list children) { end = at\nnodes = children }\n}\n\n")
+        output.append("class GeneratedParser {\n    public:\n    list tokens\n    list rules\n    int64 position\n    int64 errorPosition\n    int64 steps\n    int64 endLimit\n    String problem\n")
         output.append("    GeneratedParser(list inputTokens) {\n        tokens = inputTokens\n        rules = []\n        position = 0\n        errorPosition = 0\n        steps = 0\n        endLimit = tokens.length\n        problem = \"\"\n")
         int64 i = 0
         while (i < expressions.length) {
@@ -207,7 +208,7 @@ class GrammarEmitter {
         output.append("}\n\n")
         emitInsertions(output, "cwhip", "parser_post")
         emitInsertions(output, "cwhip", "visitor_pre")
-        output.append("class GeneratedVisitor {\n")
+        output.append("class GeneratedVisitor {\n    public:\n")
         output.append("    enum { VISIT_CONTINUE = 0, VISIT_SKIP = 1, VISIT_STOP = 2, VISIT_ERROR = -1 }\n")
         output.append("    int64 onNode(AstNode node) { return(VISIT_CONTINUE) }\n    int64 enter(AstNode node) { return(VISIT_CONTINUE) }\n    int64 leave(AstNode node) { return(VISIT_CONTINUE) }\n")
         output.append("    int64 checkedResult(int64 result, int64 phase) {\n        if (result != VISIT_CONTINUE && result != VISIT_SKIP && result != VISIT_STOP && result != VISIT_ERROR) { return(VISIT_ERROR) }\n        if (phase == 2 && result == VISIT_SKIP) { return(VISIT_ERROR) }\n        return(result)\n    }\n")

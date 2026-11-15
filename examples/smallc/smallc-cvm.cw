@@ -2,6 +2,7 @@ include "smallc_frontend.cw"
 include "smallc_backend.cw"
 
 class SmallCCVMApplication {
+    public:
     Sys.StandardIO io
 
     SmallCCVMApplication() {
