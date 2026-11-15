@@ -255,8 +255,12 @@ function(cparsegen_add_example target output_name)
     set(example_sources
         "${PROJECT_SOURCE_DIR}/examples/${target}/${target}.cw")
     if(target STREQUAL "smallc")
-        list(APPEND example_sources
-            "${PROJECT_SOURCE_DIR}/examples/smallc/smallc_frontend.cw")
+        file(GLOB smallc_support CONFIGURE_DEPENDS
+            "${PROJECT_SOURCE_DIR}/examples/smallc/smallc_frontend*.cw"
+            "${PROJECT_SOURCE_DIR}/examples/smallc/small_c_*.cw")
+        list(FILTER smallc_support EXCLUDE REGEX "/small_c_asm")
+        list(FILTER smallc_support EXCLUDE REGEX "/small_c_assembly")
+        list(APPEND example_sources ${smallc_support})
     endif()
     set(example_source_outputs)
     foreach(example_source IN LISTS example_sources)
@@ -302,10 +306,16 @@ cparsegen_add_example(calculator calculator)
 cparsegen_add_example(smallc smallc-ast)
 
 get_filename_component(cwhip_runtime_directory "${Cwhip_RUNTIME_LIBRARY}" DIRECTORY)
-set(smallc_cvm_sources
+file(GLOB smallc_cvm_sources CONFIGURE_DEPENDS
     "${PROJECT_SOURCE_DIR}/examples/smallc/smallc-cvm.cw"
-    "${PROJECT_SOURCE_DIR}/examples/smallc/smallc_frontend.cw"
-    "${PROJECT_SOURCE_DIR}/examples/smallc/smallc_backend.cw")
+    "${PROJECT_SOURCE_DIR}/examples/smallc/smallc_frontend*.cw"
+    "${PROJECT_SOURCE_DIR}/examples/smallc/smallc_backend*.cw"
+    "${PROJECT_SOURCE_DIR}/examples/smallc/small_c_*.cw")
+set(smallc_cvm_outputs)
+foreach(smallc_cvm_source IN LISTS smallc_cvm_sources)
+    get_filename_component(smallc_cvm_name "${smallc_cvm_source}" NAME)
+    list(APPEND smallc_cvm_outputs "${smallc_cvm_work}/${smallc_cvm_name}")
+endforeach()
 add_custom_command(
     OUTPUT "${smallc_cvm_executable}"
     COMMAND "${CMAKE_COMMAND}" -E make_directory
@@ -339,9 +349,7 @@ add_custom_command(
         "${Cwhip_COMPILER}" "${Cwhip_RUNTIME_LIBRARY}"
     BYPRODUCTS "${smallc_cvm_work}/parser.cw"
         "${smallc_cvm_work}/grammar.dot"
-        "${smallc_cvm_work}/smallc-cvm.cw"
-        "${smallc_cvm_work}/smallc_frontend.cw"
-        "${smallc_cvm_work}/smallc_backend.cw"
+        ${smallc_cvm_outputs}
     VERBATIM)
 add_custom_target(smallc-cvm DEPENDS "${smallc_cvm_executable}")
 if(BUILD_TESTING)

@@ -1,3 +1,15 @@
+/*
+ * examples/insertion/words.cw — Counts words by inserting a visitor
+ * into a generated parser.
+ *
+ * Created: 2026-10-22
+ * Author: chuck
+ *
+ * Changelog:
+ *   2026-10-22  Initial file.
+ *   2026-11-15  Apply the Cwhip coding standard.
+ */
+
 include "parser.cw"
 
 start {
