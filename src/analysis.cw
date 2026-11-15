@@ -8,6 +8,7 @@
 // parser expression table and its literal table.
 
 class AnalysisDiagnostic {
+    public:
     String phase
     GrammarDiagnostic info
     bool located
@@ -22,6 +23,7 @@ class AnalysisDiagnostic {
 // Domains: 0 lexer expression to lexer token, 1 parser to lexer token,
 // 2 parser expression to parser rule.
 class ResolvedReference {
+    public:
     int64 domain
     String name
     int64 owner
@@ -45,6 +47,7 @@ class ResolvedReference {
 // One lexer token, including synthetic @quoted tokens, with its compiled
 // Thompson NFA entry in Analysis.lexerStates and its resolved dependencies.
 class LexerPlan {
+    public:
     int64 index
     String name
     LexerRule rule
@@ -82,6 +85,7 @@ class LexerPlan {
 // precedes it. zeroContext is true when nothing non-nullable can follow it
 // inside A, so a cycle of such edges consumes nothing and nothing follows it.
 class LeftCornerEdge {
+    public:
     int64 origin
     int64 destination
     bool zeroContext
@@ -98,6 +102,7 @@ class LeftCornerEdge {
 }
 
 class ParserRuleFacts {
+    public:
     int64 index
     String name
     ParserRule rule
@@ -128,6 +133,7 @@ class ParserRuleFacts {
 // 3 choice, 4 repetition. target is a parser-rule index and token a lexer
 // index for references (-1 otherwise); literal indexes Analysis.literals.
 class ParserExprRecord {
+    public:
     int64 index
     int64 kind
     String value
@@ -160,6 +166,7 @@ class ParserExprRecord {
 }
 
 class LexicalConfig {
+    public:
     String keywordToken
     SourceSpan keywordSpan
     SourceSpan reservedSpan
@@ -178,6 +185,7 @@ class LexicalConfig {
 }
 
 class Analysis {
+    public:
     bool complete
     LexicalConfig lexical
     list lexers
@@ -243,6 +251,7 @@ class Analysis {
 }
 
 class GrammarAnalyzer {
+    public:
     GrammarModel grammar
     Analysis analysis
     String lexerProblem

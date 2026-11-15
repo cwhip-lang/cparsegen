@@ -1,6 +1,7 @@
 include "parser.cw"
 
 class Variable {
+    public:
     String name
     fp64 value
 
@@ -11,6 +12,7 @@ class Variable {
 }
 
 class Calculator {
+    public:
     list variables
     String problem
     Sys.StandardIO io

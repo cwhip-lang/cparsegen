@@ -1,6 +1,7 @@
 include "parser.cw"
 
 class Names : GeneratedVisitor {
+    public:
     int64 count
     bool first
     String problem

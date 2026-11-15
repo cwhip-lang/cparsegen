@@ -1,6 +1,7 @@
 include "smallc_frontend.cw"
 
 class SmallCASTApplication {
+    public:
     Sys.StandardIO io
 
     SmallCASTApplication() {

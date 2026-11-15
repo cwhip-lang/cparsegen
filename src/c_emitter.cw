@@ -2,6 +2,7 @@ include "c_runtime.cw"
 
 // Uses the same collected expression/literal indices as the Cwhip emitter.
 class CGrammarEmitter {
+    public:
     GrammarModel grammar
     Analysis analysis
     GrammarEmitter shared

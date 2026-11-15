@@ -1,4 +1,5 @@
 class SourceLocation {
+    public:
     String path
     String displayPath
     int64 offset
@@ -21,6 +22,7 @@ class SourceLocation {
 }
 
 class SourceSpan {
+    public:
     SourceLocation first
     SourceLocation last
 
@@ -31,6 +33,7 @@ class SourceSpan {
 }
 
 class GrammarDiagnostic {
+    public:
     String message
     SourceSpan span
     SourceSpan related
@@ -63,6 +66,7 @@ class GrammarDiagnostic {
 }
 
 class GrammarToken {
+    public:
     int64 kind
     String text
     String name
@@ -87,6 +91,7 @@ class GrammarToken {
 }
 
 class GrammarScanner {
+    public:
     String source
     String sourcePath
     String displayPath
@@ -528,6 +533,7 @@ class GrammarScanner {
 }
 
 class LexerRule {
+    public:
     String name
     LexerExpr expression
     int64 quote
@@ -545,6 +551,7 @@ class LexerRule {
 
 // Kinds: character class, reference, sequence, choice, repetition.
 class LexerExpr {
+    public:
     int64 kind
     String value
     list children
@@ -568,6 +575,7 @@ class LexerExpr {
 
 // Thompson states: byte transition, epsilon split, accepting state.
 class LexerState {
+    public:
     int64 kind
     list ranges
     int64 next
@@ -582,6 +590,7 @@ class LexerState {
 }
 
 class ByteRange {
+    public:
     int64 first
     int64 last
 
@@ -593,6 +602,7 @@ class ByteRange {
 
 // Kinds: reference, literal, sequence, choice, repetition.
 class RuleExpr {
+    public:
     int64 kind
     String value
     list children
@@ -613,6 +623,7 @@ class RuleExpr {
 }
 
 class ParserRule {
+    public:
     String name
     RuleExpr expression
     int64 line
@@ -627,6 +638,7 @@ class ParserRule {
 }
 
 class GrammarDirective {
+    public:
     String name
     String content
     int64 line
@@ -641,6 +653,7 @@ class GrammarDirective {
 }
 
 class CodeInsertion {
+    public:
     String target
     String boundary
     String content
@@ -665,6 +678,7 @@ class CodeInsertion {
 }
 
 class GrammarModel {
+    public:
     list lexerRules
     list parserRules
     list directives
@@ -688,6 +702,7 @@ class GrammarModel {
 }
 
 class GrammarReader {
+    public:
     list tokens
     int64 position
     int64 classPosition
@@ -1046,6 +1061,7 @@ class GrammarReader {
 }
 
 class GrammarSource {
+    public:
     String path
     String displayPath
     int64 firstLine
@@ -1068,6 +1084,7 @@ class GrammarSource {
 
 // Line IDs remain unique across files while preserving line-local lexer parsing.
 class GrammarSources {
+    public:
     list paths
     list files
     int64 nextLine
