@@ -105,10 +105,12 @@ declaration order; quotes consume embedded comment markers as ordinary text.
 Keyword remapping applies only when the designated identifier token wins;
 reserved spellings override literal remapping.
 
-Grammar `@include` and target-code `@insert` are also implemented.
-For C, directives outside this list and `@note` are rejected with source-located
-diagnostics before either output is opened, rather than silently ignoring an
-unsupported lexical extension. `@note` remains explicitly inert. Malformed
+Grammar `@include`, target-code `@insert`, and inert `@note` are also
+implemented. For C, directives outside this list are rejected with
+source-located diagnostics before either output is opened, rather than
+silently ignoring an unsupported lexical extension. `@note` is allowlisted
+with `@skip`, `@keywords`, `@reserved`, `@quoted`, `@line_comment`, and
+`@block_comment`, and remains explicitly inert. Malformed
 supported lexical directives are rejected by the shared reader. This stricter
 C-target allowlist does not change default Cwhip generation or its handling
 of opaque directives.

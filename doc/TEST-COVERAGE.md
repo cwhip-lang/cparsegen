@@ -40,7 +40,7 @@ using the available assembler/runner. Earlier audit counts below describe
 their historical runs, not this migration's result.
 
 CTest registers **18 module suites** (`cparsegen_<module>`), one for each
-`tests/test_*.py`, containing **355 unittest checks** (including two new CTest
+`tests/test_*.py`, containing **359 unittest checks** (including two new CTest
 registration/opt-out checks). These are different counts: CTest reports module
 results, while `ctest -V` shows individual unittest results and optional skips.
 Each module has private HOME/XDG, working, and temporary directories and can

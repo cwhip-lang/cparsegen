@@ -256,8 +256,8 @@ usage: cparsegen [--library | --target c] [--include-path DIR:DIR...] [--dot FIL
 Grammar/target validation errors return `1` on stderr. Source-located errors
 use `PATH:LINE:COLUMN: bytes START-END: MESSAGE`; whole-model errors without a
 source site use `PATH: MESSAGE`. Included-file diagnostics identify the
-resolved absolute file and retain up to eight `included from PATH:LINE:COLUMN`
-sites, nearest parent first.
+resolved absolute file and retain up to eight
+`included from PATH:LINE:COLUMN: byte OFFSET` sites, nearest parent first.
 The generator reads and validates the grammar and constructs the requested output
 strings **before opening any output**. Invalid grammars do not create or
 truncate outputs. Once validation succeeds, outputs are opened in write mode;
@@ -513,6 +513,7 @@ directive. The C backend explicitly rejects directives outside the table.
 };
 @insert cwhip visitor_post {
 class MyVisitor : GeneratedVisitor {
+    public:
     int64 enter_token_WORD(AstNode node) { return(VISIT_CONTINUE) }
 }
 };
@@ -528,7 +529,8 @@ unknown targets or boundaries are errors even in unselected blocks.
 
 Inserted Cwhip bodies must use current
 [Cwhip syntax](https://github.com/cwhip-lang/cwhip/blob/master/doc/GRAMMAR.md),
-including `return(value)`, callable types such as `int64<int64>`, and dictionary
+including `public:` before a method that overrides a generated hook,
+`return(value)`, callable types such as `int64<int64>`, and dictionary
 literals such as `["key": value]` or `[:]`. The generator preserves bodies
 verbatim; it does not translate legacy syntax. A `.cpg` directive or parser-rule
 terminator is still `;`, even though `;` is not a Cwhip comment or statement
