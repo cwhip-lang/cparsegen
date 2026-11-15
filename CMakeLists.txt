@@ -113,6 +113,19 @@ if(NOT COMMAND cwhip_apply_application_defaults)
 endif()
 cwhip_apply_application_defaults()
 
+# CMake 3.29+ copies CMAKE_INSTALL_PREFIX from the environment inside project().
+# 3.24 through 3.28 ignore that variable. The SDK helper leaves a non-empty
+# environment value for project() to consume, so apply it here when the cache
+# does not already hold an explicit -D value.
+if(CMAKE_VERSION VERSION_LESS "3.29" AND NOT "$ENV{CMAKE_INSTALL_PREFIX}" STREQUAL "")
+    get_property(cparsegen_install_prefix_cached CACHE CMAKE_INSTALL_PREFIX
+        PROPERTY TYPE SET)
+    if(NOT cparsegen_install_prefix_cached)
+        set(CMAKE_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}" CACHE PATH
+            "Install path prefix" FORCE)
+    endif()
+endif()
+
 project(cparsegen LANGUAGES C)
 include(CTest)
 

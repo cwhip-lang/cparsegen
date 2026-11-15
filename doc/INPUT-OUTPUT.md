@@ -796,7 +796,7 @@ eight sites with `included from ...`.
 
 This provenance applies to **grammar input** and generator diagnostics only.
 Generated input `AstNode`/`Node` source spans are not added by this milestone:
-they remain as described in [In-memory token/node layouts](#in-memory-token-node-layouts)
+they remain as described in [In-memory token/node layouts](#in-memory-tokennode-layouts)
 and the existing generated runtime provides no new AST span API.
 
 Validation is not a full target-language symbol checker: user-chosen names
