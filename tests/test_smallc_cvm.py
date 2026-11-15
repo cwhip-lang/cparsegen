@@ -117,8 +117,13 @@ class SmallCCVMTests(unittest.TestCase):
         self.assertEqual(execution.stderr, b"")
 
         c_executable = self.directory / f"{name}-host"
+        # SmallC spells the entry point `int main()`. Clang 18 enables
+        # -Wstrict-prototypes by default, and -Werror turns that into a
+        # host-oracle failure. The comparison is the program result.
+        command = c_compile_command(source_path, c_executable)
+        command.insert(command.index("-pedantic") + 1, "-Wno-strict-prototypes")
         subprocess.run(
-            c_compile_command(source_path, c_executable),
+            command,
             check=True,
             capture_output=True,
             text=True,
