@@ -13,7 +13,7 @@ and a separately installed **Cwhip SDK 0.0.2** with the `numeric-v2` ABI and
 configurable application output directories. See [Building](../../doc/BUILDING.md) for SDK installation
 and discovery. Select the whole SDK prefix, not just its `bin` directory.
 
-Install the official [CVM tools](https://github.com/chucktilbury/cvm) separately.
+Install the official [CVM tools](https://github.com/cwhip-lang/cvm) separately.
 The file example requires `cvm-as` and `cvm-run` with the integer file-handle
 services `file_open`, `file_read_handle`, `file_write_handle` and
 `file_close_handle` (service IDs 9 through 12). A version number alone is not

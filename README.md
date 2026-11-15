@@ -2,7 +2,7 @@
 
 `cparsegen` is a Cwhip parser generator with a shared grammar model, Cwhip and
 standalone C99 backends, generated AST/visitor APIs, and runnable examples.
-Source: [github.com/chucktilbury/cparsegen](https://github.com/chucktilbury/cparsegen).
+Source: [github.com/cwhip-lang/cparsegen](https://github.com/cwhip-lang/cparsegen).
 
 This directory contains the generator and embedded runtimes in `src/`, grammars
 and consumers in `examples/`, tests in `tests/`, and setup helpers in
