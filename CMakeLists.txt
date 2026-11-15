@@ -449,3 +449,38 @@ set_target_properties(statement-compiler PROPERTIES
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(statement-compiler PRIVATE -Wall -Wextra -Werror -pedantic)
 endif()
+
+# format rewrites the repository's *.cw sources in place. cwhip-format reads
+# the root .cwhip-format from the working directory. Files under the build
+# tree are omitted so generated copies are left alone. The target fails when
+# cwhip-format is not available.
+find_program(CWHIP_FORMAT NAMES cwhip-format
+    DOC "Cwhip source formatter (cwhip-format)")
+file(GLOB_RECURSE cparsegen_format_sources "${PROJECT_SOURCE_DIR}/*.cw")
+set(cparsegen_format_inputs)
+foreach(cparsegen_format_source IN LISTS cparsegen_format_sources)
+    cmake_path(IS_PREFIX CMAKE_BINARY_DIR "${cparsegen_format_source}"
+        NORMALIZE cparsegen_format_in_build)
+    if(NOT cparsegen_format_in_build)
+        list(APPEND cparsegen_format_inputs "${cparsegen_format_source}")
+    endif()
+endforeach()
+if(CWHIP_FORMAT)
+    message(STATUS "Using cwhip-format ${CWHIP_FORMAT}")
+    add_custom_target(format
+        COMMAND "${CWHIP_FORMAT}" -i ${cparsegen_format_inputs}
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        COMMENT "Formatting Cwhip sources"
+        USES_TERMINAL
+        VERBATIM)
+else()
+    message(STATUS
+        "cwhip-format was not found; the format target will fail")
+    add_custom_target(format
+        COMMAND "${CMAKE_COMMAND}" -E echo "cwhip-format was not found"
+        COMMAND "${CMAKE_COMMAND}" -E false
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        COMMENT "cwhip-format was not found"
+        USES_TERMINAL
+        VERBATIM)
+endif()
