@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+- Apply the Cwhip coding standard and split the long generator sources.
+  `grammar.cw`, `analysis.cw`, and `emitter.cw` are include lists.
+  Declaration collection is `grammar_reader.cw` with `grammar_reader_1.cw`
+  and `grammar_reader_2.cw`. Include ancestry is
+  `GrammarSources.renderDiagnostic` in `grammar_sources_1.cw`. Analysis is
+  `grammar_analyzer.cw` through `grammar_analyzer_5.cw`. Cwhip emission is
+  `grammar_emitter_1.cw` and `grammar_emitter_2.cw`. The C allowlist stays
+  in `c_emitter.cw`, and the embedded C runtime stays in `c_runtime.cw`.
+  Generated classes and handwritten overrides keep `public:`. The checked-in
+  `.cwhip-format` is the formatter dump, including `NewlineBeforeCloseBrace`.
+
+- Add a CMake `format` target. It runs `cwhip-format -i` on every `*.cw`
+  file outside the build tree, from the repository root, so it reads
+  `.cwhip-format`. When `cwhip-format` is not on `PATH`, the target prints
+  `cwhip-format was not found` and fails. `build` and `rebuild` do not
+  invoke it.
+
 - Add `.gitattributes` so GitHub does not label `.cw` files as RedCode.
 - Point repository links at the `cwhip-lang` GitHub organization.
 - Parse argv through the SDK `cli` 0.1.0 package while preserving usage text,

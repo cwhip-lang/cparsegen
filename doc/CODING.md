@@ -131,7 +131,7 @@ carry the narrative humans need to read it.
 - All testing goes through **CTest**.
 - Keep tests as small as practical; treat them as example code when
   practical.
-- [PLAN.md](PLAN.md) still owns broader test-suite shape and work
+- [PLAN.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/PLAN.md) still owns broader test-suite shape and work
   order; this section locks placement and delivery rules.
 
 ## FFI
@@ -163,16 +163,16 @@ and fn test programs are exempt unless migration is trivial.
 - `--config` itself has no in-file key.
 - The server uses one unified `config/server-*.cfg`. That file holds
   process and network settings and the §14 scenario knobs
-  ([SERVER-CONFIG.md](SERVER-CONFIG.md)).
+  ([SERVER-CONFIG.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/SERVER-CONFIG.md)).
 - Legacy `setup=` / `--setup` / `spawn_ai_count` /
   `spawn_ai_template` are rejected and removed.
 - An explicit `--config` that cannot be opened is a hard error (no
   silent builtin).
 - AI, human, and tick keep their own `--config` surfaces.
   `config/tick-default.cfg` is a placeholder until advance-N.
-- Key catalogs: [SERVER-CONFIG.md](SERVER-CONFIG.md),
-  [AI-CLIENT-CONFIG.md](AI-CLIENT-CONFIG.md),
-  [HUMAN-CLIENT-CONFIG.md](HUMAN-CLIENT-CONFIG.md).
+- Key catalogs: [SERVER-CONFIG.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/SERVER-CONFIG.md),
+  [AI-CLIENT-CONFIG.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/AI-CLIENT-CONFIG.md),
+  [HUMAN-CLIENT-CONFIG.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/HUMAN-CLIENT-CONFIG.md).
 - XDG defaults for the server, human, and AI are implemented
   (CPL-115).
 
@@ -292,7 +292,7 @@ PreserveBlockCommentNewlines: true
 
 ## Out of scope
 
-Not done here. See [PLAN.md](PLAN.md) for work order.
+Not done here. See [PLAN.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/PLAN.md) for work order.
 
 - Mass-apply these rules across all proof-of-concept applications.
   Per-app `CODING.md` copies that do not conflict with the rules

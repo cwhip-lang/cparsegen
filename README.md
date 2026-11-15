@@ -20,6 +20,9 @@ build
 ctest --test-dir build --output-on-failure -j4
 ```
 
+`build` and `rebuild` do not format sources. The `format` target rewrites
+`*.cw` files in place; see [Building](doc/BUILDING.md#format-cwhip-sources).
+
 - [Building](doc/BUILDING.md)
 - [Usage](doc/USAGE.md)
 - [Input and output](doc/INPUT-OUTPUT.md)
