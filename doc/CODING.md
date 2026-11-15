@@ -15,7 +15,17 @@ those rules do not conflict with this document.
   one line code blocks. This helps to visually define code blocks.
 - Indents are 4 spaces. No tabs for indent. Continuations are allowed
   inside **[]** and **()** and indent is 8 spaces past the normal
-  indent.
+  indent. A long call or dict breaks after `(` or `[`, one item per
+  line, including a call or dict on the right of `=`. A long
+  out-of-line method breaks before `from` at the block indent. A
+  generic and a class base list stay on one line.
+- One space around `=` and around binary operators. Unary `+`, `-`,
+  `!`, and `~` stay tight. `not` has one space after it. `..` stays
+  tight. One space after a comma, none before. No space inside `()`,
+  `[]`, or `<>`. One space before `{` when it shares the line.
+- A comment-only line, `case`, `default`, a `{` on its own line, and
+  `except`, `finally`, and `from` when they start a line use the
+  block indent.
 - Line length should be kept to less than 80 characters to allow clean
   editing on a console.
 - Reflow all comments to the column limit.
@@ -121,7 +131,7 @@ carry the narrative humans need to read it.
 - All testing goes through **CTest**.
 - Keep tests as small as practical; treat them as example code when
   practical.
-- [PLAN.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/PLAN.md) still owns broader test-suite shape and work
+- [PLAN.md](PLAN.md) still owns broader test-suite shape and work
   order; this section locks placement and delivery rules.
 
 ## FFI
@@ -153,16 +163,16 @@ and fn test programs are exempt unless migration is trivial.
 - `--config` itself has no in-file key.
 - The server uses one unified `config/server-*.cfg`. That file holds
   process and network settings and the §14 scenario knobs
-  ([SERVER-CONFIG.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/SERVER-CONFIG.md)).
+  ([SERVER-CONFIG.md](SERVER-CONFIG.md)).
 - Legacy `setup=` / `--setup` / `spawn_ai_count` /
   `spawn_ai_template` are rejected and removed.
 - An explicit `--config` that cannot be opened is a hard error (no
   silent builtin).
 - AI, human, and tick keep their own `--config` surfaces.
   `config/tick-default.cfg` is a placeholder until advance-N.
-- Key catalogs: [SERVER-CONFIG.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/SERVER-CONFIG.md),
-  [AI-CLIENT-CONFIG.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/AI-CLIENT-CONFIG.md),
-  [HUMAN-CLIENT-CONFIG.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/HUMAN-CLIENT-CONFIG.md).
+- Key catalogs: [SERVER-CONFIG.md](SERVER-CONFIG.md),
+  [AI-CLIENT-CONFIG.md](AI-CLIENT-CONFIG.md),
+  [HUMAN-CLIENT-CONFIG.md](HUMAN-CLIENT-CONFIG.md).
 - XDG defaults for the server, human, and AI are implemented
   (CPL-115).
 
@@ -185,7 +195,11 @@ one pattern:
 ## Formatter defaults
 
 The block below came from the `cwhip-format` built-in defaults
-(`--dump-config`).
+(`--dump-config`). Spacing, list wrapping, and the block indent of a
+comment-only line, `case`, `default`, a brace that starts a line, and
+`except`, `finally`, and `from` are always applied. They are not keys
+in this dump. `BreakBeforeBinaryOperators`, `BraceBinding`,
+`CommentPragmas`, and `SpaceBeforeParens` stay unset.
 
 ```
 # Language of the file. Cwhip is the only accepted value.
@@ -218,6 +232,8 @@ NewlineBeforeOpenBrace: false
 NewlineAfterOpenBrace: true
 # Put the token after } on the next line.
 NewlineAfterCloseBrace: true
+# Put } on its own line. False leaves it at the end of the line.
+NewlineBeforeCloseBrace: true
 # Put else on the line after }. False leaves it on the } line.
 NewlineBeforeElse: true
 # Put except on the line after }. Also applies to finally. False leaves it on the } line.
@@ -276,7 +292,7 @@ PreserveBlockCommentNewlines: true
 
 ## Out of scope
 
-Not done here. See [PLAN.md](https://github.com/cwhip-lang/cwhip/blob/master/doc/PLAN.md) for work order.
+Not done here. See [PLAN.md](PLAN.md) for work order.
 
 - Mass-apply these rules across all proof-of-concept applications.
   Per-app `CODING.md` copies that do not conflict with the rules
