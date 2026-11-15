@@ -21,6 +21,13 @@ grammar source stack (include expansion, source order, provenance)
   -> Cwhip / C / DOT emitters                  read Analysis, never recompute
 ```
 
+`src/grammar.cw`, `src/analysis.cw`, and `src/emitter.cw` are include lists
+for that pipeline. Collection is `src/grammar_reader.cw` with
+`src/grammar_reader_1.cw` and `src/grammar_reader_2.cw`. Include ancestry is
+`GrammarSources.renderDiagnostic` in `src/grammar_sources_1.cw`. Analyzer
+methods are `src/grammar_analyzer.cw` through `src/grammar_analyzer_5.cw`.
+Cwhip emission is `src/grammar_emitter_1.cw` and `src/grammar_emitter_2.cw`.
+
 `GrammarAnalyzer` runs exactly once, inside `GrammarSources.read`, after
 includes are expanded and the whole grammar is parsed. It computes, in order:
 insertion target/boundary validation; `@quoted`/`@keywords`/`@reserved`/comment

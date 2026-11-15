@@ -60,3 +60,7 @@ own path, not the current directory. It does not remove custom output
 directories elsewhere. Use `rebuild` to retain configuration while removing
 compiled outputs, or `scripts/setup --clean` to remove generated outputs and
 reconfigure. See [Building](BUILDING.md#clean).
+
+`build` and `rebuild` do not run the formatter. `build format` does: it
+rewrites `*.cw` sources in place with `cwhip-format` when that program is
+on `PATH`. See [Format Cwhip sources](BUILDING.md#format-cwhip-sources).

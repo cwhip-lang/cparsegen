@@ -1321,16 +1321,19 @@ See the [feature/target evidence matrix](TEST-COVERAGE.md) for named tests,
 target/mode differences, reproducible validation, and remaining limitations.
 
 This reference was checked against these implementation surfaces rather than
-inferring features from the architecture proposal:
+inferring features from the architecture proposal.
+[grammar.cw](../src/grammar.cw), [analysis.cw](../src/analysis.cw), and
+[emitter.cw](../src/emitter.cw) are include lists. The table names the files
+that collect declarations, expand includes, analyze the grammar, and emit Cwhip.
 
 | Contract | Source and regression coverage |
 | --- | --- |
 | Generator arguments, outputs, validation ordering and path collisions | [main.cw](../src/main.cw), [path identity](../src/paths.c), [CLI tests](../tests/test_cli.py), [generator tests](../tests/test_generator.py), [C backend tests](../tests/test_c_backend.py) |
-| Grammar syntax, directives, validation | [grammar.cw](../src/grammar.cw), [grammar conformance tests](../tests/test_grammar_conformance.py) |
-| Include expansion, search paths, source diagnostics | [grammar.cw](../src/grammar.cw), [include tests](../tests/test_includes.py) |
-| Shared analysis/normalization, diagnostics and artifact parity | [analysis.cw](../src/analysis.cw), [analysis tests](../tests/test_analysis.py), [source provenance tests](../tests/test_source_provenance.py) |
-| Left-recursive recognition, AST/order preservation, rejection boundary and budgets | [left-recursion tests](../tests/test_left_recursion.py), [analysis.cw](../src/analysis.cw), both runtimes |
-| Cwhip source/API, tree structure, DOT | [emitter.cw](../src/emitter.cw), [generator tests](../tests/test_generator.py) |
+| Grammar syntax, directives, validation | [grammar_reader.cw](../src/grammar_reader.cw), [grammar_reader_1.cw](../src/grammar_reader_1.cw), [grammar_reader_2.cw](../src/grammar_reader_2.cw), [grammar conformance tests](../tests/test_grammar_conformance.py) |
+| Include expansion, search paths, source diagnostics | [grammar_sources.cw](../src/grammar_sources.cw), [grammar_sources_1.cw](../src/grammar_sources_1.cw), [grammar_sources_2.cw](../src/grammar_sources_2.cw), [include tests](../tests/test_includes.py) |
+| Shared analysis/normalization, diagnostics and artifact parity | [grammar_analyzer.cw](../src/grammar_analyzer.cw), [grammar_analyzer_1.cw](../src/grammar_analyzer_1.cw) through [grammar_analyzer_5.cw](../src/grammar_analyzer_5.cw), [analysis tests](../tests/test_analysis.py), [source provenance tests](../tests/test_source_provenance.py) |
+| Left-recursive recognition, AST/order preservation, rejection boundary and budgets | [left-recursion tests](../tests/test_left_recursion.py), [grammar_analyzer.cw](../src/grammar_analyzer.cw) through [grammar_analyzer_5.cw](../src/grammar_analyzer_5.cw), both runtimes |
+| Cwhip source/API, tree structure, DOT | [grammar_emitter.cw](../src/grammar_emitter.cw), [grammar_emitter_1.cw](../src/grammar_emitter_1.cw), [grammar_emitter_2.cw](../src/grammar_emitter_2.cw), [generator tests](../tests/test_generator.py) |
 | C source, runtime/API, JSON, budgets | [c_emitter.cw](../src/c_emitter.cw), [c_runtime.cw](../src/c_runtime.cw), [C backend tests](../tests/test_c_backend.py) |
 | Visitor behavior and library failure handling | [visitor tests](../tests/test_visitors.py), [consumer fixtures](../tests/fixtures/visitor), [integration guide](VISITORS.md) |
 | Optional build layout and SDK selection | [CMakeLists.txt](../CMakeLists.txt), [Building](BUILDING.md), [SDK-discovery tests](../tests/test_sdk_discovery.py) |

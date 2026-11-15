@@ -148,28 +148,44 @@ build/visitor-manual-cwhip/words --first 'alpha, forbidden'
 ```
 
 `parser.cw` is generated without a `start` block; `words.cw` is handwritten,
-includes it, and subclasses `GeneratedVisitor`. For example, its corresponding
-single-node and walker hooks are:
+includes it, and subclasses `GeneratedVisitor`. Members are private until an
+access section. `public:` makes these hooks override the generated
+`on_token_IDENT` and `enter_token_IDENT` methods that `walk` and `dispatch`
+call. The hooks are declared in the class and defined on `Names` outside it:
 
 ```cwhip
-int64 on_token_IDENT(AstNode node) {
+class Names : GeneratedVisitor {
+    public:
+    int64 count
+    bool first
+    String problem
+
+    int64 on_token_IDENT(AstNode node)
+
+    int64 enter_token_IDENT(AstNode node)
+}
+
+int64 Names.on_token_IDENT(AstNode node) {
     if (node.lexeme().equals("forbidden")) {
         problem = "identifier 'forbidden' is not allowed"
         return(VISIT_ERROR)
     }
     count += 1
-    if (first) { return(VISIT_STOP) }
+    if (first) {
+        return(VISIT_STOP)
+    }
     return(VISIT_CONTINUE)
 }
-int64 enter_token_IDENT(AstNode node) {
+
+int64 Names.enter_token_IDENT(AstNode node) {
     return(on_token_IDENT(node))
 }
 ```
 
-These methods belong to `Names : GeneratedVisitor`; its constructor calls
-`super GeneratedVisitor()` and initializes its own fields. Unoverridden
-kind-specific methods call the corresponding generic method (`onNode`,
-`enter`, or `leave`), using normal runtime method dispatch.
+The constructor calls `super GeneratedVisitor()` and initializes `count`,
+`first`, and `problem`. Unoverridden kind-specific methods call the
+corresponding generic method (`onNode`, `enter`, or `leave`), using normal
+runtime method dispatch.
 
 The full example checks `InputScanner.scan()` before constructing
 `GeneratedParser(scanner.tokens)`, then checks `parser.parseAll()` for null.

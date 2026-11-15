@@ -430,6 +430,24 @@ syntax-only parsing, visitor state, generated C, and diagnostics.
 Both end-to-end suites are registered with CTest and run by `make test` after
 building.
 
+## Format Cwhip sources
+
+The `format` target rewrites every `*.cw` file outside the build tree in
+place. It runs `cwhip-format -i` with the repository root as its working
+directory, so the formatter reads `.cwhip-format`. Generated copies under
+the build tree are left alone. `build` and `rebuild` do not depend on this
+target.
+
+```sh
+cmake --build build --target format
+```
+
+In the project shell, from the repository root, that is `build format`.
+If `cwhip-format` is not on `PATH`, the target prints
+`cwhip-format was not found` and fails. The checked-in style is the
+formatter's built-in dump; see
+[Formatter defaults](CODING.md#formatter-defaults).
+
 ## Clean
 
 Use `rebuild` to clean-first build while retaining the CMake configuration.

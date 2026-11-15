@@ -82,11 +82,22 @@ listed concrete class:
 
 ## Grammar, analysis, scanner, and parser
 
-Implementation: [grammar.cw](../src/grammar.cw) collects declarations and
-source provenance; [analysis.cw](../src/analysis.cw) runs once after expansion,
-compiles lexer NFAs and parser tables, and supplies all three emitters.
-[emitter.cw](../src/emitter.cw) and [c_runtime.cw](../src/c_runtime.cw)
-implement the generated runtimes; [c_emitter.cw](../src/c_emitter.cw) adds C's
+Implementation: [grammar.cw](../src/grammar.cw), [analysis.cw](../src/analysis.cw),
+and [emitter.cw](../src/emitter.cw) are include lists. Declarations are collected
+in [grammar_reader.cw](../src/grammar_reader.cw),
+[grammar_reader_1.cw](../src/grammar_reader_1.cw), and
+[grammar_reader_2.cw](../src/grammar_reader_2.cw). Include ancestry is
+`GrammarSources.renderDiagnostic` in
+[grammar_sources_1.cw](../src/grammar_sources_1.cw): up to eight
+`included from PATH:LINE:COLUMN: byte OFFSET` lines, then `included from ...`.
+[grammar_analyzer.cw](../src/grammar_analyzer.cw) and
+[grammar_analyzer_1.cw](../src/grammar_analyzer_1.cw) through
+[grammar_analyzer_5.cw](../src/grammar_analyzer_5.cw) run once after expansion,
+compile lexer NFAs and parser tables, and supply all three emitters.
+Cwhip emission is [grammar_emitter_1.cw](../src/grammar_emitter_1.cw) and
+[grammar_emitter_2.cw](../src/grammar_emitter_2.cw).
+[c_runtime.cw](../src/c_runtime.cw) embeds the C runtime;
+[c_emitter.cw](../src/c_emitter.cw) adds C's
 directive allowlist. Black-box agreement and baseline bytes observe this
 boundary; they do not independently prove the analyzer's internal call count.
 
