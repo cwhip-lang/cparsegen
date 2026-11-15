@@ -1,241 +1,400 @@
+/*
+ * src/main.cw — Parses arguments and writes the selected parser.
+ *
+ * Created: 2026-10-17
+ * Author: Charles Tilbury
+ *
+ * Changelog:
+ *   2026-10-17  Initial file.
+ *   2026-11-15  Apply the Cwhip coding standard.
+ */
+
 import system as Sys
 import cli as Cli
 
+include "file_identity.cw"
 include "grammar.cw"
 include "analysis.cw"
 include "emitter.cw"
 include "c_emitter.cw"
-
-class FileIdentity {
-    public:
-    int64 sameFile(String first, String second)
-}
-
-int64 FileIdentity.sameFile(String first, String second) from "cparsegen_same_file"
-
+/*
+ * Parses cparsegen's arguments and writes the selected parser and optional
+ * DOT file.
+ */
 class GeneratorCli {
     public:
     Sys.StandardIO io
     Sys.Process process
+    GeneratorCli()
 
-    GeneratorCli() {
-        io = Sys.StandardIO()
-        process = Sys.Process()
+    String defaultOutput(String grammarPath, bool cTarget)
+
+    String pathKey(String path)
+
+    bool distinctPaths(String first, String second)
+
+    Cli.CommandLine parser()
+
+    int64 run()
+
+    int64 byteSpanBound(int64 value, int64 length)
+    String byteSpan(String text, int64 first, int64 last)
+
+}
+
+/*
+ * Create a GeneratorCli and store the values passed to the constructor.
+ *
+ * Returns the new object.
+ */
+GeneratorCli GeneratorCli.GeneratorCli() {
+    io = Sys.StandardIO()
+    process = Sys.Process()
+}
+
+/*
+ * Derive the output path by replacing the grammar file's last extension.
+ *
+ * grammarPath: grammar path (String). cTarget: c target (bool).
+ *
+ * Returns the string result. An empty string means failure where this method
+ * documents that convention.
+ */
+String GeneratorCli.defaultOutput(String grammarPath, bool cTarget) {
+    int64 extension = grammarPath.length
+    int64 i = grammarPath.length - 1
+    while (i >= 0 && int64(grammarPath[i]) != 47) {
+        if (int64(grammarPath[i]) == 46 && extension == grammarPath.length) {
+            extension = i
+        }
+        i -= 1
+    }
+    // A leading dot alone is a basename, not an extension.
+    if (extension == i + 1) {
+        extension = grammarPath.length
+    }
+    String suffix = ".cw"
+    if (cTarget) {
+        suffix = ".c"
+    }
+    return(format("{}{}", byteSpan(grammarPath, 0, extension), suffix))
+}
+
+/*
+ * Return a canonical path key, or an empty string when the path cannot be
+ * resolved.
+ *
+ * path: path (String).
+ *
+ * Returns the string result. An empty string means failure where this method
+ * documents that convention.
+ */
+String GeneratorCli.pathKey(String path) {
+    Sys.FileSystem fs()
+    String resolved = fs.absolutePath(path)
+    if (!resolved.equals("")) {
+        return(resolved)
+    }
+    String parent = fs.absolutePath(fs.dirname(path))
+    if (parent.equals("")) {
+        return("")
+    }
+    return(fs.join(parent, fs.basename(path)))
+}
+
+/*
+ * Return false and print an error when two paths alias each other or cannot
+ * be resolved.
+ *
+ * first: first (String). second: second (String).
+ *
+ * Returns true on success and false when the operation does not apply or has
+ * failed.
+ */
+bool GeneratorCli.distinctPaths(String first, String second) {
+    int64 same = FileIdentity().sameFile(first, second)
+    String firstKey = pathKey(first)
+    String secondKey = pathKey(second)
+    if (same < 0 || firstKey.equals("") || secondKey.equals("")) {
+        io.writeErrorLine(format(
+                
+                "cannot resolve output paths: {} and {}",
+                
+                first,
+                
+                second))
+        return(false)
+    }
+    if (same == 1 || firstKey.equals(secondKey)) {
+        io.writeErrorLine(
+                format(
+                "path collision: {} and {}",
+                first,
+                second))
+        return(false)
+    }
+    return(true)
+}
+
+/*
+ * Build the cli description of cparsegen's flags and positionals.
+ *
+ * Returns the Cli.CommandLine result, or null when the operation fails and
+ * this method uses null for that.
+ */
+Cli.CommandLine GeneratorCli.parser() {
+    Cli.CommandLine commandLine = Cli.CommandLine("cparsegen",
+            "grammar code generator", "1.0.0")
+    Cli.Option library = Cli.Option()
+    library.longName = "library"
+    library.name = "library"
+    library.description = "emit a Cwhip library module"
+    library.valueType = Cli.ValueType().COUNTER
+    commandLine.addOption(library)
+    Cli.Option target = Cli.Option()
+    target.longName = "target"
+    target.name = "target"
+    target.description = "output language (c)"
+    target.valueType = Cli.ValueType().STRING
+    target.isList = true
+    commandLine.addOption(target)
+    Cli.Option dot = Cli.Option()
+    dot.longName = "dot"
+    dot.name = "dot"
+    dot.description = "write a Graphviz DOT file"
+    dot.valueType = Cli.ValueType().STRING
+    dot.isList = true
+    commandLine.addOption(dot)
+    Cli.Option includePath = Cli.Option()
+    includePath.longName = "include-path"
+    includePath.name = "include-path"
+    includePath.description = "colon-separated include directories"
+    includePath.valueType = Cli.ValueType().STRING
+    includePath.isList = true
+    // Keep each --include-path argument intact; colon splitting matches the
+    // historical empty-component rules in run().
+    includePath.listSeparator = "\n"
+    commandLine.addOption(includePath)
+    Cli.Positional grammar = Cli.Positional()
+    grammar.name = "grammar"
+    grammar.description = "grammar input"
+    grammar.required = true
+    commandLine.addPositional(grammar)
+    Cli.Positional output = Cli.Positional()
+    output.name = "output"
+    output.description = "output path"
+    commandLine.addPositional(output)
+    return(commandLine)
+}
+
+/*
+ * Parse argv, read the grammar, and write the parser and optional DOT file.
+ * Returns the process status.
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 GeneratorCli.run() {
+    Cli.CommandLine commandLine = parser()
+    try {
+        commandLine.parseArgv()
+    }
+    except() {
+        io.writeErrorLine(
+                
+                "usage: cparsegen [--library | --target c] [--include-path DIR:DIR...] [--dot FILE] [--] GRAMMAR [OUTPUT]")
+        return(2)
+    }
+    bool valid = true
+    if (commandLine.count("library") > 1) {
+        valid = false
+    }
+    bool library = commandLine.count("library") == 1
+    bool cTarget = false
+    list targetValues = commandLine.valuesFor("target")
+    if (targetValues.length > 1) {
+        valid = false
+    }
+    if (targetValues.length == 1) {
+        if (!(targetValues[0] as String).equals("c")) {
+            valid = false
+        }
+        else {
+            cTarget = true
+        }
+    }
+    if (library && cTarget) {
+        valid = false
+    }
+    list dotValues = commandLine.valuesFor("dot")
+    bool dot = false
+    String graphPath = ""
+    if (dotValues.length > 1) {
+        valid = false
+    }
+    if (dotValues.length == 1) {
+        graphPath = dotValues[0] as String
+        if (graphPath.equals("") or graphPath.startsWith("--")) {
+            valid = false
+        }
+        else {
+            dot = true
+        }
     }
 
-    String defaultOutput(String grammarPath, bool cTarget) {
-        int64 extension = grammarPath.length
-        int64 i = grammarPath.length - 1
-        while (i >= 0 && int64(grammarPath[i]) != 47) {
-            if (int64(grammarPath[i]) == 46 && extension == grammarPath.length) {
-                extension = i
-            }
-            i -= 1
+    list paths = []
+    list includeValues = commandLine.valuesFor("include-path")
+    int64 includeIndex = 0
+    while (includeIndex < includeValues.length) {
+        String value = includeValues[includeIndex] as String
+        if (value.startsWith("--")) {
+            valid = false
         }
-        // A leading dot alone is a basename, not an extension.
-        if (extension == i + 1) { extension = grammarPath.length }
-        String suffix = ".cw"
-        if (cTarget) { suffix = ".c" }
-        return(format("{}{}", byteSpan(grammarPath, 0, extension), suffix))
-    }
 
-    String pathKey(String path) {
-        Sys.FileSystem fs()
-        String resolved = fs.absolutePath(path)
-        if (!resolved.equals("")) { return(resolved) }
-        String parent = fs.absolutePath(fs.dirname(path))
-        if (parent.equals("")) { return("") }
-        return(fs.join(parent, fs.basename(path)))
-    }
-
-    bool distinctPaths(String first, String second) {
-        int64 same = FileIdentity().sameFile(first, second)
-        String firstKey = pathKey(first)
-        String secondKey = pathKey(second)
-        if (same < 0 || firstKey.equals("") || secondKey.equals("")) {
-            io.writeErrorLine(format("cannot resolve output paths: {} and {}", first, second))
-            return(false)
-        }
-        if (same == 1 || firstKey.equals(secondKey)) {
-            io.writeErrorLine(format("path collision: {} and {}", first, second))
-            return(false)
-        }
-        return(true)
-    }
-
-    Cli.CommandLine parser() {
-        Cli.CommandLine commandLine = Cli.CommandLine("cparsegen", "grammar code generator", "1.0.0")
-        Cli.Option library = Cli.Option()
-        library.longName = "library"
-        library.name = "library"
-        library.description = "emit a Cwhip library module"
-        library.valueType = Cli.ValueType().COUNTER
-        commandLine.addOption(library)
-        Cli.Option target = Cli.Option()
-        target.longName = "target"
-        target.name = "target"
-        target.description = "output language (c)"
-        target.valueType = Cli.ValueType().STRING
-        target.isList = true
-        commandLine.addOption(target)
-        Cli.Option dot = Cli.Option()
-        dot.longName = "dot"
-        dot.name = "dot"
-        dot.description = "write a Graphviz DOT file"
-        dot.valueType = Cli.ValueType().STRING
-        dot.isList = true
-        commandLine.addOption(dot)
-        Cli.Option includePath = Cli.Option()
-        includePath.longName = "include-path"
-        includePath.name = "include-path"
-        includePath.description = "colon-separated include directories"
-        includePath.valueType = Cli.ValueType().STRING
-        includePath.isList = true
-        // Keep each --include-path argument intact; colon splitting matches the
-        // historical empty-component rules in run().
-        includePath.listSeparator = "\n"
-        commandLine.addOption(includePath)
-        Cli.Positional grammar = Cli.Positional()
-        grammar.name = "grammar"
-        grammar.description = "grammar input"
-        grammar.required = true
-        commandLine.addPositional(grammar)
-        Cli.Positional output = Cli.Positional()
-        output.name = "output"
-        output.description = "output path"
-        commandLine.addPositional(output)
-        return(commandLine)
-    }
-
-    int64 run() {
-        Cli.CommandLine commandLine = parser()
-        try {
-            commandLine.parseArgv()
-        } except() {
-            io.writeErrorLine("usage: cparsegen [--library | --target c] [--include-path DIR:DIR...] [--dot FILE] [--] GRAMMAR [OUTPUT]")
-            return(2)
-        }
-        bool valid = true
-        if (commandLine.count("library") > 1) { valid = false }
-        bool library = commandLine.count("library") == 1
-        bool cTarget = false
-        list targetValues = commandLine.valuesFor("target")
-        if (targetValues.length > 1) { valid = false }
-        if (targetValues.length == 1) {
-            if (!(targetValues[0] as String).equals("c")) { valid = false }
-            else { cTarget = true }
-        }
-        if (library && cTarget) { valid = false }
-        list dotValues = commandLine.valuesFor("dot")
-        bool dot = false
-        String graphPath = ""
-        if (dotValues.length > 1) { valid = false }
-        if (dotValues.length == 1) {
-            graphPath = dotValues[0] as String
-            if (graphPath.equals("") or graphPath.startsWith("--")) { valid = false }
-            else { dot = true }
-        }
-        list paths = []
-        list includeValues = commandLine.valuesFor("include-path")
-        int64 includeIndex = 0
-        while (includeIndex < includeValues.length) {
-            String value = includeValues[includeIndex] as String
-            if (value.startsWith("--")) { valid = false }
-            int64 startIndex = 0
-            int64 end = 0
-            while (end <= value.length) {
-                bool atColon = false
-                if (end < value.length) {
-                    if (int64(value[end]) == 58) { atColon = true }
+        int64 startIndex = 0
+        int64 end = 0
+        while (end <= value.length) {
+            bool atColon = false
+            if (end < value.length) {
+                if (int64(value[end]) == 58) {
+                    atColon = true
                 }
-                if (end == value.length or atColon) {
-                    String path = byteSpan(value, startIndex, end)
-                    if (path.equals("")) { path = "." }
-                    paths.append(path)
-                    startIndex = end + 1
-                }
-                end = end + 1
             }
-            includeIndex = includeIndex + 1
-        }
-        list positional = commandLine.allPositionalValues()
-        if (positional.length < 1 || positional.length > 2) { valid = false }
-        int64 index = 0
-        while (index < positional.length) {
-            if ((positional[index] as String).equals("")) { valid = false }
-            index += 1
-        }
-        if (!valid) {
-            io.writeErrorLine("usage: cparsegen [--library | --target c] [--include-path DIR:DIR...] [--dot FILE] [--] GRAMMAR [OUTPUT]")
-            return(2)
+            if (end == value.length or atColon) {
+                String path = byteSpan(value, startIndex, end)
+                if (path.equals("")) {
+                    path = "."
+                }
+                paths.append(path)
+                startIndex = end + 1
+            }
+            end = end + 1
         }
 
-        String grammarPath = positional[0] as String
-        String programPath = defaultOutput(grammarPath, cTarget)
-        if (positional.length == 2) { programPath = positional[1] as String }
-        GrammarSources reader(paths)
-        GrammarModel grammar = reader.read(grammarPath)
-        if (!reader.problem.equals("")) {
-            io.writeErrorLine(reader.diagnostic(reader.problem))
+        includeIndex = includeIndex + 1
+    }
+
+    list positional = commandLine.allPositionalValues()
+    if (positional.length < 1 || positional.length > 2) {
+        valid = false
+    }
+    int64 index = 0
+    while (index < positional.length) {
+        if ((positional[index] as String).equals("")) {
+            valid = false
+        }
+        index += 1
+    }
+    if (!valid) {
+        io.writeErrorLine(
+                
+                "usage: cparsegen [--library | --target c] [--include-path DIR:DIR...] [--dot FILE] [--] GRAMMAR [OUTPUT]")
+        return(2)
+    }
+
+    String grammarPath = positional[0] as String
+    String programPath = defaultOutput(grammarPath, cTarget)
+    if (positional.length == 2) {
+        programPath = positional[1] as String
+    }
+    GrammarSources reader(paths)
+    GrammarModel grammar = reader.read(grammarPath)
+    if (!reader.problem.equals("")) {
+        io.writeErrorLine(reader.diagnostic(reader.problem))
+        return(1)
+    }
+
+    if (dot && !distinctPaths(programPath, graphPath)) {
+        return(1)
+    }
+    index = 0
+    while (index < reader.files.length) {
+        GrammarSource source = reader.files[index] as GrammarSource
+        if (!distinctPaths(source.path, programPath)) {
             return(1)
         }
-
-        if (dot && !distinctPaths(programPath, graphPath)) { return(1) }
-        index = 0
-        while (index < reader.files.length) {
-            GrammarSource source = reader.files[index] as GrammarSource
-            if (!distinctPaths(source.path, programPath)) { return(1) }
-            if (dot && !distinctPaths(source.path, graphPath)) { return(1) }
-            index += 1
-        }
-
-        GrammarEmitter emitter(grammar)
-        String program = ""
-        if (cTarget) {
-            CGrammarEmitter cEmitter(grammar, emitter)
-            String problem = cEmitter.validate()
-            if (!problem.equals("")) {
-                reader.diagnosticSpan = cEmitter.diagnosticSpan
-                reader.relatedSpan = cEmitter.relatedSpan
-                reader.diagnosticInfo = cEmitter.diagnosticInfo
-                io.writeErrorLine(reader.diagnostic(problem))
-                return(1)
-            }
-            program = cEmitter.emitProgram()
-        }
-        else { program = emitter.emitProgram(library) }
-        String graph = ""
-        if (dot) { graph = emitter.emitDot() }
-        Sys.File programFile(programPath, "w")
-        if (programFile.write(program) != program.length) {
-            io.writeErrorLine(format("{}: incomplete write", programPath))
+        if (dot && !distinctPaths(source.path, graphPath)) {
             return(1)
         }
-        programFile.close()
-        if (dot) {
-            Sys.File graphFile(graphPath, "w")
-            if (graphFile.write(graph) != graph.length) {
-                io.writeErrorLine(format("{}: incomplete write", graphPath))
-                return(1)
-            }
-            graphFile.close()
+        index += 1
+    }
+
+    GrammarEmitter emitter(grammar)
+    String program = ""
+    if (cTarget) {
+        CGrammarEmitter cEmitter(grammar, emitter)
+        String problem = cEmitter.validate()
+        if (!problem.equals("")) {
+            reader.diagnosticSpan = cEmitter.diagnosticSpan
+            reader.relatedSpan = cEmitter.relatedSpan
+            reader.diagnosticInfo = cEmitter.diagnosticInfo
+            io.writeErrorLine(reader.diagnostic(problem))
+            return(1)
         }
+        program = cEmitter.emitProgram()
+    }
+    else {
+        program = emitter.emitProgram(library)
+    }
+
+    String graph = ""
+    if (dot) {
+        graph = emitter.emitDot()
+    }
+    Sys.File programFile(programPath, "w")
+    if (programFile.write(program) != program.length) {
+        io.writeErrorLine(format("{}: incomplete write", programPath))
+        return(1)
+    }
+    programFile.close()
+    if (dot) {
+        Sys.File graphFile(graphPath, "w")
+        if (graphFile.write(graph) != graph.length) {
+            io.writeErrorLine(format("{}: incomplete write", graphPath))
+            return(1)
+        }
+        graphFile.close()
+    }
+    return(0)
+}
+
+/*
+ * Clamp a byte index into the half-open range from 0 through length. A
+ * negative index counts back from length.
+ *
+ * value: value (int64). length: length (int64).
+ *
+ * Returns the clamped index, from 0 through length.
+ */
+int64 GeneratorCli.byteSpanBound(int64 value, int64 length) {
+    int64 index = value
+    if (index < 0) {
+        index = index + length
+    }
+    if (index < 0) {
         return(0)
     }
+    if (index > length) {
+        return(length)
+    }
+    return(index)
+}
 
-    int64 byteSpanBound(int64 value, int64 length) {
-        int64 index = value
-        if (index < 0) { index = index + length }
-        if (index < 0) { return(0) }
-        if (index > length) { return(length) }
-        return(index)
+/*
+ * Copy the half-open byte range from first up to but not including last. An
+ * empty or reversed range copies nothing.
+ *
+ * text: text (String). first: first (int64). last: last (int64).
+ *
+ * Returns the copied bytes, or an empty string when the range is empty.
+ */
+String GeneratorCli.byteSpan(String text, int64 first, int64 last) {
+    int64 lower = byteSpanBound(first, text.length)
+    int64 end = byteSpanBound(last, text.length)
+    if (end <= lower) {
+        return("")
     }
-    String byteSpan(String text, int64 first, int64 last) {
-        int64 lower = byteSpanBound(first, text.length)
-        int64 end = byteSpanBound(last, text.length)
-        if (end <= lower) { return("") }
-        return(text[lower..(end - 1)])
-    }
+    return(text[lower..(end - 1)])
 }
 
 start {

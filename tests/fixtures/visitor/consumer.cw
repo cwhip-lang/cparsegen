@@ -1,76 +1,219 @@
-include "parser.cw"
+/*
+ * tests/fixtures/visitor/consumer.cw — Holds Trace.
+ *
+ * Created: 2026-10-20
+ * Author: chuck
+ *
+ * Changelog:
+ *   2026-10-20  Initial file.
+ *   2026-11-15  Apply the Cwhip coding standard.
+ */
 
+include "parser.cw"
+/*
+ * Records visitor enter and leave events so the fixture can check walk and
+ * dispatch.
+ */
 class Trace : GeneratedVisitor {
     public:
     String events
     String mode
     int64 count
+    Trace(String selected)
+    void event(String phase, AstNode node)
+    int64 enter(AstNode node)
+    int64 leave(AstNode node)
+    int64 enter_rule_pair(AstNode node)
+    int64 leave_rule_pair(AstNode node)
+    int64 enter_token_NUMBER(AstNode node)
+    int64 enter_literal_0(AstNode node)
+    int64 onNode(AstNode node)
+    int64 on_rule_entry(AstNode node)
 
-    Trace(String selected) {
-        super GeneratedVisitor()
-        events = ""
-        mode = selected
-        count = 0
+}
+
+/*
+ * Create a Trace and store the values passed to the constructor.
+ *
+ * selected: selected (String).
+ *
+ * Returns the new object.
+ */
+Trace Trace.Trace(String selected) {
+    super GeneratedVisitor()
+    events = ""
+    mode = selected
+    count = 0
+}
+
+/*
+ * Append one phase and node kind to the event log.
+ *
+ * phase: phase (String). node: node (AstNode).
+ *
+ * Does not return a value.
+ */
+void Trace.event(String phase, AstNode node) {
+    events.append(format("{}:{} ", phase, node.kind()))
+}
+
+/*
+ * Record an enter event and continue the walk.
+ *
+ * node: node (AstNode).
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 Trace.enter(AstNode node) {
+    event("e", node)
+    return(VISIT_CONTINUE)
+}
+
+/*
+ * Record a leave event and continue the walk.
+ *
+ * node: node (AstNode).
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 Trace.leave(AstNode node) {
+    event("l", node)
+    return(VISIT_CONTINUE)
+}
+
+/*
+ * Perform enter rule pair for Trace.
+ *
+ * node: node (AstNode).
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 Trace.enter_rule_pair(AstNode node) {
+    event("p", node)
+    if (mode.equals("skip")) {
+        return(VISIT_SKIP)
     }
-    void event(String phase, AstNode node) {
-        events.append(format("{}:{} ", phase, node.kind()))
+    if (mode.equals("invalid-enter")) {
+        return(99)
     }
-    int64 enter(AstNode node) {
-        event("e", node)
-        return(VISIT_CONTINUE)
+    return(VISIT_CONTINUE)
+}
+
+/*
+ * Perform leave rule pair for Trace.
+ *
+ * node: node (AstNode).
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 Trace.leave_rule_pair(AstNode node) {
+    event("q", node)
+    if (mode.equals("leave-stop")) {
+        return(VISIT_STOP)
     }
-    int64 leave(AstNode node) {
-        event("l", node)
-        return(VISIT_CONTINUE)
+    if (mode.equals("leave-error")) {
+        return(VISIT_ERROR)
     }
-    int64 enter_rule_pair(AstNode node) {
-        event("p", node)
-        if (mode.equals("skip")) { return(VISIT_SKIP) }
-        if (mode.equals("invalid-enter")) { return(99) }
-        return(VISIT_CONTINUE)
+    if (mode.equals("leave-skip")) {
+        return(VISIT_SKIP)
     }
-    int64 leave_rule_pair(AstNode node) {
-        event("q", node)
-        if (mode.equals("leave-stop")) { return(VISIT_STOP) }
-        if (mode.equals("leave-error")) { return(VISIT_ERROR) }
-        if (mode.equals("leave-skip")) { return(VISIT_SKIP) }
-        if (mode.equals("invalid-leave")) { return(99) }
-        return(VISIT_CONTINUE)
+    if (mode.equals("invalid-leave")) {
+        return(99)
     }
-    int64 enter_token_NUMBER(AstNode node) {
-        event("n", node)
-        count += 1
-        if (mode.equals("stop")) { return(VISIT_STOP) }
-        if (mode.equals("error")) { return(VISIT_ERROR) }
-        return(VISIT_CONTINUE)
+    return(VISIT_CONTINUE)
+}
+
+/*
+ * Perform enter token number for Trace.
+ *
+ * node: node (AstNode).
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 Trace.enter_token_NUMBER(AstNode node) {
+    event("n", node)
+    count += 1
+    if (mode.equals("stop")) {
+        return(VISIT_STOP)
     }
-    int64 enter_literal_0(AstNode node) {
-        event("t", node)
-        return(VISIT_CONTINUE)
+    if (mode.equals("error")) {
+        return(VISIT_ERROR)
     }
-    int64 onNode(AstNode node) {
-        event("g", node)
-        return(VISIT_CONTINUE)
+    return(VISIT_CONTINUE)
+}
+
+/*
+ * Perform enter literal 0 for Trace.
+ *
+ * node: node (AstNode).
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 Trace.enter_literal_0(AstNode node) {
+    event("t", node)
+    return(VISIT_CONTINUE)
+}
+
+/*
+ * Perform on node for Trace.
+ *
+ * node: node (AstNode).
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 Trace.onNode(AstNode node) {
+    event("g", node)
+    return(VISIT_CONTINUE)
+}
+
+/*
+ * Perform on rule entry for Trace.
+ *
+ * node: node (AstNode).
+ *
+ * Returns the int64 result. A negative sentinel means the operation failed
+ * when this method uses one.
+ */
+int64 Trace.on_rule_entry(AstNode node) {
+    event("d", node)
+    if (mode.equals("dispatch-stop")) {
+        return(VISIT_STOP)
     }
-    int64 on_rule_entry(AstNode node) {
-        event("d", node)
-        if (mode.equals("dispatch-stop")) { return(VISIT_STOP) }
-        if (mode.equals("dispatch-error")) { return(VISIT_ERROR) }
-        if (mode.equals("dispatch-skip")) { return(VISIT_SKIP) }
-        if (mode.equals("dispatch-invalid")) { return(99) }
-        return(VISIT_CONTINUE)
+    if (mode.equals("dispatch-error")) {
+        return(VISIT_ERROR)
     }
+    if (mode.equals("dispatch-skip")) {
+        return(VISIT_SKIP)
+    }
+    if (mode.equals("dispatch-invalid")) {
+        return(99)
+    }
+    return(VISIT_CONTINUE)
 }
 
 start {
     InputScanner scanner("12 + 34")
-    if (!scanner.scan()) { Sys.Process().exit(10) }
+    if (!scanner.scan()) {
+        Sys.Process().exit(10)
+    }
     GeneratedParser parser(scanner.tokens)
     AstNode root = parser.parseAll()
-    if (root == null) { Sys.Process().exit(11) }
+    if (root == null) {
+        Sys.Process().exit(11)
+    }
     AstNode first = root.childAt(0).childAt(0)
     if (!first.lexeme().equals("12") || root.childCount() != 2
-            || root.childAt(1).childCount() != 0) { Sys.Process().exit(12) }
+            || root.childAt(1).childCount() != 0) {
+        Sys.Process().exit(12)
+    }
+
     String mode = Sys.Process().arg(1)
     Trace visitor(mode)
     Trace independent("walk")
@@ -78,16 +221,30 @@ start {
     if (mode.length >= 8 && mode[0..7].equals("dispatch")) {
         result = visitor.dispatch(root)
         if (independent.dispatch(first) != visitor.VISIT_CONTINUE
-                || !independent.events.equals("g:NUMBER ")) { Sys.Process().exit(13) }
-    }
-    else {
-        if (mode.equals("unknown")) { result = visitor.walk(AstNode("custom", "")) }
-        else {
-            if (mode.equals("null")) { result = visitor.walk(null) }
-            else { result = visitor.walk(root) }
+                || !independent.events.equals(
+                
+                "g:NUMBER ")) {
+            Sys.Process().exit(13)
         }
     }
-    if (independent.walk(root) != visitor.VISIT_CONTINUE || independent.count != 2) {
+    else {
+
+        if (mode.equals("unknown")) {
+            result = visitor.walk(AstNode("custom", ""))
+        }
+        else {
+            if (mode.equals("null")) {
+                result = visitor.walk(null)
+            }
+            else {
+                result = visitor.walk(root)
+            }
+        }
+
+    }
+
+    if (independent.walk(root) != visitor.VISIT_CONTINUE ||
+            independent.count != 2) {
         Sys.Process().exit(14)
     }
     print(format("{}|{}|{}\n", result, visitor.count, visitor.events))

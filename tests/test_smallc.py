@@ -58,8 +58,13 @@ class SmallCTests(unittest.TestCase):
             path = cls.directory / name.lower()
             path.mkdir()
             cls.env[name] = str(path)
-        shutil.copy2(EXAMPLE / "smallc.cw", cls.directory)
-        shutil.copy2(EXAMPLE / "smallc_frontend.cw", cls.directory)
+        for source in sorted(EXAMPLE.glob("*.cw")):
+            name = source.name
+            if name in {"smallc-cvm.cw", "smallc_backend.cw"}:
+                continue
+            if name.startswith(("small_c_asm", "small_c_assembly")):
+                continue
+            shutil.copy2(source, cls.directory)
         cls.executable = cls.directory / "smallc-ast"
         subprocess.run(
             [str(generator), "--library", str(EXAMPLE / "smallc.cpg"),
